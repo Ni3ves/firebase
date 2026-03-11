@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mensajes</title>
+
+<style>
+
+body{
+font-family: Arial;
+background: linear-gradient(135deg,#4facfe,#00f2fe);
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.container{
+background:white;
+padding:30px;
+border-radius:12px;
+width:420px;
+text-align:center;
+box-shadow:0px 10px 25px rgba(0,0,0,0.2);
+}
+
+input{
+width:80%;
+padding:10px;
+margin:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+padding:8px 15px;
+border:none;
+background:#4facfe;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#2e8ef7;
+}
+
+.mensaje{
+background:#f1f1f1;
+padding:10px;
+margin:10px 0;
+border-radius:6px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.borrar{
+background:red;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📩 Mensajes</h2>
+
+<input type="text" id="mensajeInput" placeholder="Escribe un mensaje">
+
+<br>
+
+<button onclick="enviarMensaje()">Enviar</button>
+
+<h3>Lista de mensajes</h3>
+
+<div id="mensajes"></div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAv9lRJVoIKX8fMpd8rYUl-IJkIBoW1Ldo",
+    authDomain: "prueba-api-6e022.firebaseapp.com",
+    projectId: "prueba-api-6e022",
+    storageBucket: "prueba-api-6e022.firebasestorage.app",
+    messagingSenderId: "673895393445",
+    appId: "1:673895393445:web:e931c4b678b8354dedc54c",
+    measurementId: "G-DQDYPQ8XQN"
+  };
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const mensajesRef = collection(db,"mensajes");
+
+window.enviarMensaje = async function(){
+
+let texto = document.getElementById("mensajeInput").value;
+
+if(texto==="") return;
+
+await addDoc(mensajesRef,{
+texto:texto
+});
+
+document.getElementById("mensajeInput").value="";
+
+}
+
+window.borrarMensaje = async function(id){
+
+await deleteDoc(doc(db,"mensajes",id));
+
+}
+
+onSnapshot(mensajesRef,(snapshot)=>{
+
+let contenido="";
+
+snapshot.forEach((docu)=>{
+
+contenido += `
+<div class="mensaje">
+<span>${docu.data().texto}</span>
+<button class="borrar" onclick="borrarMensaje('${docu.id}')">Borrar</button>
+</div>
+`;
+
+});
+
+document.getElementById("mensajes").innerHTML=contenido;
+
+});
+
+</script>
+
+</body>
+</html>
